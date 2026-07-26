@@ -1,0 +1,33 @@
+{
+  "github": {
+    "username": "SNprime24"
+  },
+  "hero": {
+    "name": "Suprit Naik",
+    "role": "Software Developer | Competitive Programmer",
+    "techStack": ["C++", "Python", "JavaScript", "React", "Node.js"],
+    "currentFocus": "DSA, Backend Systems, AI-Powered Developer Tools",
+    "social": {
+      "linkedin": "SNprime24",
+      "twitter": "SNprime24",
+      "portfolio": "https://snprime24.dev",
+      "email": "supritnaik100@gmail.com"
+    }
+  },
+  "platforms": {
+    "leetcode": {
+      "username": "SNprime24"
+    },
+    "codeforces": {
+      "username": "SNprime24"
+    },
+    "codechef": {
+      "username": "SNprime24"
+    }
+  },
+  "repoShowcase": {
+    "repos": [],
+    "count": 4
+  },
+  "theme": "tokyonight"
+}

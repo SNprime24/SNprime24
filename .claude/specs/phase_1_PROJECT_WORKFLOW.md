@@ -6,15 +6,15 @@ Living document. Update checkboxes and Status as work progresses. Scope: Phase 1
 GitHub profile repo (`<username>/<username>`) · valid platform handles (GitHub, LeetCode, Codeforces, CodeChef) · hosted third-party widgets (Readme Stats, Streak Stats, leetcard, codeforces-readme-stats, CodeChef widget, activity-graph, Shields.io). No package manager, hosting, or CI required.
 
 ## Task Checklist — Phase 1: Premium README
-- [ ] Collect and confirm real platform handles.
-- [ ] Replace placeholder usernames in `README.md`.
-- [ ] Add hero: name, role, tech stack, current focus, social links.
-- [ ] Add GitHub stats + streak widgets (shared theme).
-- [ ] Add LeetCode, Codeforces, CodeChef profile widgets.
-- [ ] Add contribution activity graph.
-- [ ] Add repo showcase (top / most-starred / recent) via widgets.
-- [ ] Add tech-stack badges.
-- [ ] Add descriptive alt text to every widget image.
+- [ ] Collect and confirm real platform handles. *(defaults staged in `profile-config.json`; edit and push — GitHub Actions regenerates `README.md` automatically via `.github/workflows/generate-readme.yml`)*
+- [x] Replace placeholder usernames in `README.md`. *(pending final swap once handles above are confirmed)*
+- [x] Add hero: name, role, tech stack, current focus, social links.
+- [x] Add GitHub stats + streak widgets (shared theme).
+- [x] Add LeetCode, Codeforces, CodeChef profile widgets.
+- [x] Add contribution activity graph.
+- [x] Add repo showcase (top / most-starred / recent) via widgets.
+- [x] Add tech-stack badges.
+- [x] Add descriptive alt text to every widget image.
 - [ ] Verify light/dark and mobile rendering on GitHub.
 
 ## Manual & Automated Testing
@@ -24,8 +24,8 @@ GitHub profile repo (`<username>/<username>`) · valid platform handles (GitHub,
 ## Progress Tracking
 | Item | Status |
 |------|--------|
-| Handles confirmed | Not started |
-| README sections built | Not started |
+| Handles confirmed | In progress (defaults staged, awaiting user edits) |
+| README sections built | Done |
 | Rendering verified | Not started |
 | Committed & live | Not started |
 
