@@ -1,6 +1,6 @@
 <div align="center">
 
-# Hi 👋, I'm Suprit Naik
+# Hi 👋, I'm Suprit Nai
 
 ### Software Developer | Competitive Programmer
 
@@ -25,7 +25,7 @@
 
 <div align="center">
 
-![Suprit Naik's GitHub stats](https://github-readme-stats.vercel.app/api?username=SNprime24&show_icons=true&theme=tokyonight&hide_border=true)
+![Suprit Nai's GitHub stats](https://github-readme-stats.vercel.app/api?username=SNprime24&show_icons=true&theme=tokyonight&hide_border=true)
 ![GitHub Streak](https://streak-stats.demolab.com?user=SNprime24&theme=tokyonight&hide_border=true)
 
 </div>
@@ -48,7 +48,7 @@
 
 <div align="center">
 
-![Suprit Naik's GitHub activity graph](https://github-readme-activity-graph.vercel.app/graph?username=SNprime24&theme=tokyo-night&hide_border=true)
+![Suprit Nai's GitHub activity graph](https://github-readme-activity-graph.vercel.app/graph?username=SNprime24&theme=tokyo-night&hide_border=true)
 
 </div>
 
