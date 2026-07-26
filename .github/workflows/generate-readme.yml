@@ -4,7 +4,7 @@ on:
   push:
     paths:
       - profile-config.json
-      - scripts/generate-readme.js
+      - scripts/**
   workflow_dispatch: {}
 
 permissions:
