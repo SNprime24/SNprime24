@@ -36,7 +36,7 @@
 
 <div align="center">
 
-![LeetCode stats for SNprime24](https://leetcard.jacoblin.cool/SNprime24?theme=dark&font=Baloo%202&ext=heatmap)
+![LeetCode stats for supritnaik100](https://leetcard.jacoblin.cool/supritnaik100?theme=dark&font=Baloo%202&ext=heatmap)
 ![Codeforces stats for SNprime24](https://codeforces-readme-stats.vercel.app/api/card?username=SNprime24&theme=dark)
 ![CodeChef stats for supritnaik100](https://codechef-readme-stats.onrender.com/supritnaik100?v=1)
 
