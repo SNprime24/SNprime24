@@ -1,0 +1,27 @@
+# Adds every new or reopened issue in this repo to the Pesonal-work-Board project.
+# Needs the repo secret BOARD_TOKEN (classic token with `repo` and `project` scopes).
+# Without the secret the job skips quietly instead of failing.
+name: Add to board
+
+on:
+  issues:
+    types: [opened, reopened, transferred]
+
+permissions: {}
+
+jobs:
+  add:
+    runs-on: ubuntu-latest
+    timeout-minutes: 2
+    env:
+      HAS_TOKEN: ${{ secrets.BOARD_TOKEN != '' }}
+    steps:
+      - name: Skip (no BOARD_TOKEN secret)
+        if: env.HAS_TOKEN != 'true'
+        run: echo "::notice::BOARD_TOKEN secret is not set in this repo, so the issue was not added to the board."
+      - name: Add issue to board
+        if: env.HAS_TOKEN == 'true'
+        uses: actions/add-to-project@v1.0.2
+        with:
+          project-url: https://github.com/users/SNprime24/projects/13
+          github-token: ${{ secrets.BOARD_TOKEN }}
