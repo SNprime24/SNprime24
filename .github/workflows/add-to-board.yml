@@ -1,4 +1,5 @@
-# Adds every new or reopened issue in this repo to the Pesonal-work-Board project.
+# Adds every new or reopened issue in this repo to the Pesonal-work-Board project,
+# then fills an empty Priority / Size with the board defaults.
 # Needs the repo secret BOARD_TOKEN (classic token with `repo` and `project` scopes).
 # Without the secret the job skips quietly instead of failing.
 name: Add to board
@@ -20,8 +21,59 @@ jobs:
         if: env.HAS_TOKEN != 'true'
         run: echo "::notice::BOARD_TOKEN secret is not set in this repo, so the issue was not added to the board."
       - name: Add issue to board
+        id: add
         if: env.HAS_TOKEN == 'true'
         uses: actions/add-to-project@v1.0.2
         with:
           project-url: https://github.com/users/SNprime24/projects/13
           github-token: ${{ secrets.BOARD_TOKEN }}
+      - name: Set default Priority and Size
+        if: env.HAS_TOKEN == 'true'
+        env:
+          GH_TOKEN: ${{ secrets.BOARD_TOKEN }}
+          ITEM_ID: ${{ steps.add.outputs.itemId }}
+          OWNER: SNprime24
+          PROJECT_NUMBER: 13
+          # Field=option pairs; only empty fields are filled.
+          DEFAULTS: Priority=Normal Size=M
+        run: |
+          set -euo pipefail
+
+          project=$(gh api graphql -f query='
+            query($login: String!, $number: Int!) {
+              user(login: $login) { projectV2(number: $number) {
+                id
+                fields(first: 50) { nodes { ... on ProjectV2SingleSelectField { id name options { id name } } } }
+              } }
+            }' -f login="$OWNER" -F number="$PROJECT_NUMBER" --jq '.data.user.projectV2')
+
+          filled=$(gh api graphql -f query='
+            query($id: ID!) {
+              node(id: $id) { ... on ProjectV2Item {
+                fieldValues(first: 30) { nodes { ... on ProjectV2ItemFieldSingleSelectValue {
+                  field { ... on ProjectV2SingleSelectField { name } }
+                } } }
+              } }
+            }' -f id="$ITEM_ID" --jq '[.data.node.fieldValues.nodes[].field.name // empty] | join(",")')
+
+          for pair in $DEFAULTS; do
+            name=${pair%%=*}
+            option=${pair#*=}
+            if [[ ",$filled," == *",$name,"* ]]; then
+              echo "$name already set"
+              continue
+            fi
+            field_id=$(jq -r --arg n "$name" '.fields.nodes[] | select(.name == $n) | .id' <<<"$project")
+            option_id=$(jq -r --arg n "$name" --arg o "$option" '.fields.nodes[] | select(.name == $n) | .options[] | select(.name == $o) | .id' <<<"$project")
+            if [[ -z "$field_id" || -z "$option_id" ]]; then
+              echo "::warning::Field '$name' or option '$option' not found on the board"
+              continue
+            fi
+            gh api graphql -f query='
+              mutation($project: ID!, $item: ID!, $field: ID!, $option: String!) {
+                updateProjectV2ItemFieldValue(input: {projectId: $project, itemId: $item, fieldId: $field,
+                  value: {singleSelectOptionId: $option}}) { projectV2Item { id } }
+              }' -f project="$(jq -r .id <<<"$project")" -f item="$ITEM_ID" \
+                 -f field="$field_id" -f option="$option_id" --silent
+            echo "Set $name = $option"
+          done
