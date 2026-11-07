@@ -1,5 +1,6 @@
 # Adds every new or reopened issue in this repo to the Pesonal-work-Board project,
-# then fills an empty Priority / Size with the board defaults.
+# then fills an empty Priority / Size / Status with the board defaults and an
+# empty Sprint with the next sprint.
 # Needs the repo secret BOARD_TOKEN (classic token with `repo` and `project` scopes).
 # Without the secret the job skips quietly instead of failing.
 name: Add to board
@@ -27,7 +28,7 @@ jobs:
         with:
           project-url: https://github.com/users/SNprime24/projects/13
           github-token: ${{ secrets.BOARD_TOKEN }}
-      - name: Set default Priority and Size
+      - name: Set default Priority, Size, Status and Sprint
         if: env.HAS_TOKEN == 'true'
         env:
           GH_TOKEN: ${{ secrets.BOARD_TOKEN }}
@@ -35,7 +36,9 @@ jobs:
           OWNER: SNprime24
           PROJECT_NUMBER: 13
           # Field=option pairs; only empty fields are filled.
-          DEFAULTS: Priority=Normal Size=M
+          DEFAULTS: Priority=Normal Size=M Status=Backlog
+          # Timezone for "today" when picking the next sprint (the first one that starts after today).
+          SPRINT_TZ: Asia/Kolkata
         run: |
           set -euo pipefail
 
@@ -43,16 +46,20 @@ jobs:
             query($login: String!, $number: Int!) {
               user(login: $login) { projectV2(number: $number) {
                 id
-                fields(first: 50) { nodes { ... on ProjectV2SingleSelectField { id name options { id name } } } }
+                fields(first: 50) { nodes {
+                  ... on ProjectV2SingleSelectField { id name options { id name } }
+                  ... on ProjectV2IterationField { id name configuration { iterations { id title startDate } } }
+                } }
               } }
             }' -f login="$OWNER" -F number="$PROJECT_NUMBER" --jq '.data.user.projectV2')
 
           filled=$(gh api graphql -f query='
             query($id: ID!) {
               node(id: $id) { ... on ProjectV2Item {
-                fieldValues(first: 30) { nodes { ... on ProjectV2ItemFieldSingleSelectValue {
-                  field { ... on ProjectV2SingleSelectField { name } }
-                } } }
+                fieldValues(first: 30) { nodes {
+                  ... on ProjectV2ItemFieldSingleSelectValue { field { ... on ProjectV2SingleSelectField { name } } }
+                  ... on ProjectV2ItemFieldIterationValue { field { ... on ProjectV2IterationField { name } } }
+                } }
               } }
             }' -f id="$ITEM_ID" --jq '[.data.node.fieldValues.nodes[].field.name // empty] | join(",")')
 
@@ -77,3 +84,22 @@ jobs:
                  -f field="$field_id" -f option="$option_id" --silent
             echo "Set $name = $option"
           done
+
+          if [[ ",$filled," == *",Sprint,"* ]]; then
+            echo "Sprint already set"
+            exit 0
+          fi
+          today=$(TZ="$SPRINT_TZ" date +%F)
+          sprint_field=$(jq -r '.fields.nodes[] | select(.name == "Sprint") | .id' <<<"$project")
+          next_sprint=$(jq -c --arg today "$today" '[.fields.nodes[] | select(.name == "Sprint") | .configuration.iterations[] | select(.startDate > $today)] | sort_by(.startDate) | .[0] // empty' <<<"$project")
+          if [[ -z "$next_sprint" ]]; then
+            echo "::warning::No sprint starts after $today, so Sprint was left empty. Add one in the project's Sprint settings; the daily sweep then fills recent cards."
+            exit 0
+          fi
+          gh api graphql -f query='
+            mutation($project: ID!, $item: ID!, $field: ID!, $iteration: String!) {
+              updateProjectV2ItemFieldValue(input: {projectId: $project, itemId: $item, fieldId: $field,
+                value: {iterationId: $iteration}}) { projectV2Item { id } }
+            }' -f project="$(jq -r .id <<<"$project")" -f item="$ITEM_ID" \
+               -f field="$sprint_field" -f iteration="$(jq -r .id <<<"$next_sprint")" --silent
+          echo "Set Sprint = $(jq -r .title <<<"$next_sprint")"
