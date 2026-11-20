@@ -1,0 +1,20 @@
+name: Add to board
+
+on:
+  issues:
+    types: [opened, reopened]
+
+permissions: {}
+
+jobs:
+  add:
+    runs-on: ubuntu-latest
+    timeout-minutes: 2
+    steps:
+      - uses: SNprime24/SN-Github-Automation/actions/add-to-board@v2
+        with:
+          board-token: ${{ secrets.BOARD_TOKEN }}
+          owner: SNprime24
+          project-number: 13
+          defaults: Priority=Normal Size=M Status=Backlog
+          sprint-tz: Asia/Kolkata
